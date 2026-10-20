@@ -9,7 +9,7 @@ node -v                      # needs Node 20+
 npm install
 ollama pull gemma3:4b        # the reply model (~3.4 GB); Ollama must be installed
 cp .env.example .env.local   # OLLAMA_MODEL, WALL_REQUIRES_APPROVAL
-npm run db:seed              # identities, 18 wall posts, 20 memes (safe to re-run)
+npm run db:seed              # identities, 18 wall posts, 55 approved memes (safe to re-run)
 ```
 
 Check it: `npm run test:moderation` must end with `0 fail`.
