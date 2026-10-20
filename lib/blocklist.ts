@@ -12,7 +12,7 @@ const TOKENS = [
   // Hinglish (Roman)
   "mc", "bc", "bkl", "mkc", "bsdk", "bhosdike", "bhosdi", "bhosda", "madarchod", "madarchot", "behenchod",
   "bhenchod", "benchod", "chutiya", "chutiye", "chutia", "chootiya", "chootiye", "choot", "chut", "gandu", "gaandu", "gaand", "gand",
-  "lund", "lauda", "lavda", "loda", "lodu", "randi", "raand", "harami", "haramkhor", "kamina", "kamine",
+  "lund", "lauda", "lavda", "loda", "lodu", "lode", "laude", "lavde", "chtiya", "chutya", "chtiye", "randi", "raand", "harami", "haramkhor", "kamina", "kamine",
   "chodu", "jhaat", "jhatu", "tatte", "bhadwa", "bhadwe", "hijda", "hijra", "chamar", "bhangi",
   "katua", "kutti", "saali", "suar",
   // Devanagari
@@ -28,7 +28,10 @@ const SUBSTRINGS = [
   "मादरचोद", "बहनचोद", "भेनचोद", "चूतिया", "चुतिया", "भोसड",
 ];
 
-const PHRASES = ["teri maa", "teri behen", "teri ma ki", "kill yourself", "go die", "तेरी माँ", "तेरी मां"];
+const PHRASES = ["teri maa", "teri behen", "teri ma ki", "kill yourself", "go die", "hook up", "nice body", "तेरी माँ", "तेरी मां"];
+
+// Self-harm gets a kind reply, never sarcasm (see lib/reply.ts).
+export const SELF_HARM = /\b(kill myself|killing myself|suicid\w*|end my life|want to die|wanna die|marna chaht[ai]|mar jaung[ai]|khudkushi)\b/i;
 
 // Public wall only: topics we never want on the wall.
 const PUBLIC_TOKENS = [
@@ -43,10 +46,17 @@ const CONTACT: [RegExp, string][] = [
   [/[a-z0-9._%+-]+\s*(@|\[at\]|\(at\))\s*[a-z0-9-]+\s*(\.|\[dot\]|\(dot\))\s*[a-z]{2,}/i, "email"],
   [/(https?:\/\/|www\.)\S+|\b[a-z0-9-]{2,}\.(com|in|org|net|io|co|me|xyz|app|dev|ly|gg|info|site)\b/i, "link"],
   [/(^|[^a-z0-9])@[a-z0-9_.]{2,}/i, "handle"],
+  [/\b[a-z0-9._-]+\s+at\s+[a-z0-9-]+\s+dot\s+(com|in|org|net|co|edu)\b/i, "email"],
 ];
 
 // Real named people on the wall: "Prof. Mehta", "Sharma sir", "Riya ma'am".
 const NAMED_PERSON = /\b(?:[Pp]rof|[Pp]rofessor|[Dd]r|[Mm]rs?|[Mm]s|[Mm]iss|[Ss]ir|[Mm]adam)\.?\s+[A-Z][a-z]{2,}|\b[A-Z][a-z]{2,}\s+(?:sir|ma'?am|madam)\b/;
+
+// Look-alike letters from other scripts (Cyrillic, Greek, Armenian) -> Latin.
+const CONFUSABLE: Record<string, string> = {
+  "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x", "к": "k", "і": "i", "ј": "j", "ѕ": "s", "т": "t", "м": "m", "н": "h", "в": "b",
+  "α": "a", "ο": "o", "ε": "e", "ι": "i", "κ": "k", "ν": "v", "τ": "t", "υ": "u", "ս": "u", "օ": "o", "ı": "i",
+};
 
 const LEET: Record<string, string> = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "@": "a", "$": "s", "!": "i", "|": "i", "+": "t" };
 
@@ -55,6 +65,7 @@ function normalize(text: string): string {
     .normalize("NFKD")
     .replace(/[̀-़ͯ​-‍﻿]/g, "") // Latin accents, nukta, zero-width
     .toLowerCase()
+    .replace(/[^\x00-\x7f\u0900-\u097f]/g, (c) => CONFUSABLE[c] ?? c)
     .replace(/[0-9@$!|+]/g, (c) => LEET[c] ?? c);
 }
 
@@ -86,6 +97,7 @@ const SUBSTR_RE = new RegExp(SUBSTRINGS.map(repeatable).join("|"), "u");
 export type BlockResult = { blocked: boolean; reason?: string };
 
 export function checkBlocklist(text: string, level: "private" | "public" = "private"): BlockResult {
+  if (SELF_HARM.test(text)) return { blocked: true, reason: "self-harm" };
   for (const [re, why] of CONTACT) if (re.test(text)) return { blocked: true, reason: why };
   if (level === "public" && NAMED_PERSON.test(text)) return { blocked: true, reason: "named person" };
 

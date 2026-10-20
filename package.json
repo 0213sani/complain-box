@@ -10,7 +10,8 @@
     "db:seed": "tsx scripts/seed.ts",
     "bakeoff": "tsx scripts/bakeoff.ts",
     "test:moderation": "tsx scripts/test-moderation.ts",
-    "memes:import": "tsx scripts/memes-import.ts"
+    "memes:import": "tsx scripts/memes-import.ts",
+    "fest": "next build && next start -H 127.0.0.1"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

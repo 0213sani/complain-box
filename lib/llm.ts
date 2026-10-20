@@ -9,7 +9,7 @@ export function modelName(): string {
 
 export async function chat(
   messages: ChatMessage[],
-  opts: { timeoutMs?: number; json?: boolean; temperature?: number; model?: string } = {}
+  opts: { timeoutMs?: number; json?: boolean; temperature?: number; model?: string; maxTokens?: number } = {}
 ): Promise<string | null> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? 6000);
@@ -24,7 +24,7 @@ export async function chat(
         stream: false,
         keep_alive: "2h",
         ...(opts.json ? { format: "json" } : {}),
-        options: { temperature: opts.temperature ?? 0.9, num_predict: 90 },
+        options: { temperature: opts.temperature ?? 0.9, num_predict: opts.maxTokens ?? 90 },
       }),
     });
     if (!res.ok) return null;

@@ -1,9 +1,9 @@
 import { chat } from "./llm";
 import { cleanReply } from "./clean";
-import { checkBlocklist } from "./blocklist";
+import { checkBlocklist, SELF_HARM } from "./blocklist";
 import { moderate } from "./moderate";
 import { replyMessages, type Voice } from "./prompts";
-import { fallbackReplies, deflections, pick } from "./fallbackReplies";
+import { careReply, fallbackReplies, deflections, pick } from "./fallbackReplies";
 import { approvedMemeCount, randomApprovedMemes } from "./repo";
 
 export const MEME_WEIGHT = 0.4; // share of replies in meme voice
@@ -18,8 +18,9 @@ function chooseVoice(): Voice {
 
 async function generate(voice: Voice, complaint: string): Promise<string | null> {
   const memes = voice === "meme" ? randomApprovedMemes(3) : [];
+  // Ollama runs one request at a time and moderation is queued first, so the first try gets 5s
   for (let attempt = 0; attempt < 2; attempt++) {
-    const out = cleanReply(await chat(replyMessages(voice, complaint, memes), { timeoutMs: attempt === 0 ? 4000 : 2500 }));
+    const out = cleanReply(await chat(replyMessages(voice, complaint, memes), { timeoutMs: attempt === 0 ? 5000 : 1800 }));
     if (out && !checkBlocklist(out, "private").blocked) return out;
   }
   return null;
@@ -34,6 +35,7 @@ async function build(complaint: string, voice: Voice): Promise<ReplyResult> {
 
 export async function generateReply(complaint: string): Promise<ReplyResult> {
   const voice = chooseVoice();
+  if (SELF_HARM.test(complaint)) return { reply: careReply, voice: "relative", source: "deflect" };
   if (checkBlocklist(complaint, "private").blocked) return { reply: pick(deflections), voice, source: "deflect" };
   const fallback = new Promise<ReplyResult>((res) =>
     setTimeout(() => res({ reply: pick(fallbackReplies[voice]), voice, source: "fallback" }), DEADLINE_MS)

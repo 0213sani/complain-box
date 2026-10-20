@@ -58,3 +58,7 @@ export const deflections = [
 ];
 
 export const pick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+// For complaints that mention self-harm: no jokes, just care.
+export const careReply =
+  "Hey, that sounds really heavy, and no exam is worth it. Please talk to a friend or someone you trust today, or call Tele-MANAS at 14416 (free, 24x7).";

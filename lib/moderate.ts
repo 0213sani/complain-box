@@ -5,7 +5,7 @@ import { moderationMessages } from "./prompts";
 export type ModResult = { safe: boolean; reason: string; ok: boolean }; // ok=false: model failed
 
 export async function moderate(text: string, level: "private" | "public", timeoutMs = 6000): Promise<ModResult> {
-  const raw = await chat(moderationMessages(text, level), { json: true, temperature: 0, timeoutMs });
+  const raw = await chat(moderationMessages(text, level), { json: true, temperature: 0, timeoutMs, maxTokens: 30 });
   try {
     const j = JSON.parse(raw ?? "");
     if (typeof j.safe !== "boolean") throw new Error("bad shape");
