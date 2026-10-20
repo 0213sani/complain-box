@@ -22,13 +22,13 @@ const complaints = [
 async function main() {
   const models = process.argv[2] ? [process.argv[2]] : await listModels();
   if (!models.length) return console.log("No Ollama models found. Is Ollama running?");
-  const memes = randomApprovedMemes(3);
-  console.log(`Models: ${models.join(", ")}\nMemes this run: ${memes.map((m) => m.phrase).join(" | ")}\n`);
+  console.log(`Models: ${models.join(", ")}`);
 
   for (const m of models) await chat([{ role: "user", content: "Say ok." }], { model: m, timeoutMs: 120000 }); // load
 
   for (const c of complaints) {
-    console.log(`\n=== ${c}`);
+    const memes = randomApprovedMemes(3); // fresh 3 per complaint, like the app
+    console.log(`\n=== ${c}\n  memes offered: ${memes.map((m) => m.phrase).join(" | ")}`);
     for (const model of models) {
       for (const voice of ["relative", "meme"] as Voice[]) {
         const t = Date.now();
