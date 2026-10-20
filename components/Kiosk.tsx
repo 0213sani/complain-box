@@ -7,10 +7,11 @@ import { fetchIdentity, postToWall, sendComplaint } from "@/lib/kiosk/api";
 import { useIdleReset } from "@/lib/kiosk/useIdleReset";
 import { CARD, cardCenter, slotCenter } from "@/lib/kiosk/stage";
 import Stage from "./Stage";
-import PlaceholderScene from "./PlaceholderScene";
+import StreetScene from "./scene/StreetScene";
 import PostBox from "./PostBox";
 import Sign from "./Sign";
-import PlaceholderPostman, { type PostmanMode } from "./PlaceholderPostman";
+import Postman, { type PostmanMode } from "./postman/Postman";
+import DistantBell from "./DistantBell";
 import WritingCard from "./WritingCard";
 import ReplyCard from "./ReplyCard";
 
@@ -65,25 +66,17 @@ export default function Kiosk() {
 
   return (
     <Stage>
-      <PlaceholderScene />
+      <StreetScene />
       <Sign />
       <PostBox enabled={s.phase === "IDLE" && !!s.identity} onOpen={() => dispatch({ type: "OPEN" })} />
-      <PlaceholderPostman
+      <Postman
         mode={postman}
         onDone={(m) => {
           if (m === "leave") dispatch({ type: "RIDE_DONE" });
           if (m === "return") dispatch({ type: "RETURNED" });
         }}
       />
-      {s.phase === "WAITING" && (
-        <motion.p
-          className="absolute left-0 right-0 top-[60px] text-center font-sign text-4xl text-cream"
-          animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-        >
-          Tring tring… the postman is on his way back
-        </motion.p>
-      )}
+      {s.phase === "WAITING" && <DistantBell />}
 
       <AnimatePresence>
         {cardOpen && (

@@ -16,4 +16,4 @@ export const cardHeight = (CARD.w * 750) / 1156;
 export const cardLeft = (STAGE.w - CARD.w) / 2;
 export const cardCenter = { x: cardLeft + CARD.w / 2, y: CARD.top + cardHeight / 2 };
 
-export const POSTMAN = { left: 900, w: 260, h: 240 };
+export const POSTMAN = { left: 880, w: 520, h: 600 }; // sprite viewBox is 520x600, wheels on the ground
