@@ -6,7 +6,7 @@ import { replyMessages, type Voice } from "./prompts";
 import { careReply, fallbackReplies, deflections, pick } from "./fallbackReplies";
 import { approvedMemeCount, randomApprovedMemes } from "./repo";
 
-export const MEME_WEIGHT = 0.4; // share of replies in meme voice
+export const MEME_WEIGHT = 0.7; // share of replies in meme voice (user: more memes than plain replies)
 const MIN_MEMES = 5;
 const DEADLINE_MS = 7000; // client gives up at 8s
 
