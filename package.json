@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "bakeoff": "tsx scripts/bakeoff.ts",
+    "test:moderation": "tsx scripts/test-moderation.ts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
