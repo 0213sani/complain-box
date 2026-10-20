@@ -34,7 +34,7 @@ export const fallbackReplies: Record<Voice, string[]> = {
     "Bhai kya kar raha hai tu? Complaining to a post box, very brave.",
     "Mujhe toh pehle se pata tha. This was always going to happen.",
     "Thoda adjust kar lo. That is our official policy.",
-    "Aap chronology samajhiye: first problem, then complaint, then nothing.",
+    "Tareekh pe tareekh: first problem, then complaint, then nothing.",
     "Kuch toh gadbad hai, Daya. Probably everything.",
     "Hum kahan aa gaye. From hope to complaint box in one day.",
     "Tension lene ka nahi, sirf dene ka. Forwarding yours to the next person.",

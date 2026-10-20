@@ -79,3 +79,24 @@ export function postsByStatus(status: "pending" | "approved", limit = 100): (Wal
     .all(status, limit) as (WallRow & { is_seed: number })[];
   return rows.map((r) => ({ ...toPost(r), isSeed: !!r.is_seed }));
 }
+
+// Memes (admin + import)
+export type MemeRow = { id: number; phrase: string; note: string; source: string; status: "pending" | "approved" | "rejected"; addedAt: string };
+
+export function memesByStatus(status: MemeRow["status"]): MemeRow[] {
+  return getDb()
+    .prepare("SELECT id, phrase, note, source, status, added_at AS addedAt FROM memes WHERE status = ? ORDER BY id DESC")
+    .all(status) as MemeRow[];
+}
+
+export function setMemeStatus(id: number, status: MemeRow["status"]): boolean {
+  return getDb().prepare("UPDATE memes SET status = ? WHERE id = ?").run(status, id).changes === 1;
+}
+
+// Inserts as pending unless the phrase already exists (any case). Returns true if added.
+export function insertPendingMeme(phrase: string, note: string, source: string): boolean {
+  const db = getDb();
+  if (db.prepare("SELECT 1 FROM memes WHERE lower(phrase) = lower(?)").get(phrase)) return false;
+  db.prepare("INSERT INTO memes (phrase, note, source, status) VALUES (?, ?, ?, 'pending')").run(phrase, note, source);
+  return true;
+}
