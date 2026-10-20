@@ -1,4 +1,4 @@
-import { getDb } from "../lib/db";
+import { backfillWallSeq, getDb } from "../lib/db";
 import { identities, memes, exchanges } from "./seed-data";
 
 const db = getDb();
@@ -24,6 +24,7 @@ db.transaction(() => {
   // memes: add missing ones as approved, never overwrite your review decisions
   const insMeme = db.prepare("INSERT OR IGNORE INTO memes (phrase, note, source, status) VALUES (?, ?, 'seed', 'approved')");
   for (const [p, n] of memes) insMeme.run(p, n);
+  backfillWallSeq(db);
 })();
 
 const count = (t: string) => (db.prepare(`SELECT COUNT(*) n FROM ${t}`).get() as { n: number }).n;

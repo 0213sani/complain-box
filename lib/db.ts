@@ -43,7 +43,17 @@ export function getDb(): Database.Database {
     db.pragma("journal_mode = WAL");
     db.pragma("foreign_keys = ON");
     db.exec(SCHEMA);
+    // wall_seq: order in which posts were approved (the wall polls by it, not by id)
+    const cols = db.prepare("PRAGMA table_info(complaints)").all() as { name: string }[];
+    if (!cols.some((c) => c.name === "wall_seq")) db.exec("ALTER TABLE complaints ADD COLUMN wall_seq INTEGER");
+    backfillWallSeq(db);
     g.__db = db;
   }
   return g.__db;
+}
+
+// Approved rows without a sequence (seeds, older rows) get one, in id order.
+export function backfillWallSeq(db: Database.Database) {
+  db.exec(`UPDATE complaints SET wall_seq = id + (SELECT COALESCE(MAX(wall_seq), 0) FROM complaints)
+           WHERE wall_status = 'approved' AND wall_seq IS NULL`);
 }
