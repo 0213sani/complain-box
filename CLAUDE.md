@@ -18,7 +18,7 @@ Fest run command: `npm run build && npm start -- -H 127.0.0.1` (production is sm
 - `public/assets/postbox_tq.png`: red post box ("Taqneeq Post"). Its dark slot is where cards get posted.
 - `public/assets/postcard_tq.png`: blank postcard. It has stray edge slivers and a large empty area: crop to the card bounds on a transparent background, keep the untouched original in `assets-original/`, export at 2x.
 - `docs/complain box design.pdf`: palette and aesthetic brief. `docs/wall_reference.png`: tilted drifting-card grid (motion and layout reference ONLY, not its dark photo look). Look at both images before styling anything.
-- All other art (street scene, postman on a cycle, props) is drawn by you as layered inline SVG/CSS. No external image generators.
+- `public/assets/street_tq.webp` (1472x720): the IDLE background, provided by me. It already contains the post box, the postman and the street. Do NOT draw a scene, postman or props on top (decided 2026-10-20, overrides the earlier SVG-scene plan).
 
 ## Visual system
 Style: flat/semi-flat vector, matte colours, solid-block shadows, high contrast, warm and saturated, modern Indian illustration. Spend boldness in two places only: the street scene and the postman's ride. Keep everything else quiet.
@@ -30,13 +30,13 @@ Layout: fixed 1600x1000 stage scaled to fit the window, letterboxed with a palet
 
 ## Screens and state machine
 Single page `/` with state `IDLE -> WRITING -> SENDING -> (WAITING) -> REPLY -> IDLE`. The wall is `/wall`. Admin is `/admin`.
-1. IDLE: street scene. The postman on his cycle stands beside the post box with a small idle loop (bell, foot tap). A hand-lettered sign "शिकायत यहाँ डालें / Drop your shikayat here" with a pulsing arrow. Prefetch the next identity. Tapping the post box (it wobbles) goes to WRITING.
+1. IDLE: `street_tq.webp` fills the stage (sides cropped). An invisible, softly glowing tap area sits over the painted post box; tapping it goes to WRITING. No animated postman, no sign, no arrow. Prefetch the next identity.
 2. WRITING: the postcard rises to full screen. The identity writes itself onto the 3 address lines and 6 PIN boxes. A transparent `<textarea>` sits over the writing area in Kalam, autofocused, 160-char cap. Enter sends, Shift+Enter is a new line, and a visible "Send" stamp button also works. Esc closes back to IDLE.
-3. SENDING: the card shrinks into the post box slot. The postman rings his bell and cycles off the right edge (~2s, spinning wheels, bob, dust puff). `POST /api/reply` starts the instant Enter is pressed, in parallel with the animation.
-4. WAITING: only if the reply is not back when the animation ends: empty street, a distant bell. After 8s, use a fallback reply.
+3. SENDING: the card shrinks into the painted post box slot (~0.5s). `POST /api/reply` starts the instant Enter is pressed.
+4. WAITING: only if the reply is not back when the card is posted: a small "on its way" message. After 8s, use a fallback reply.
 5. REPLY: full-screen postcard. The reply writes in (under 2s) on the left. The identity appears on the right as the addressee. A small "Re: ..." line quotes the complaint. A circular "replied" postmark lands. When it finishes, show 3 buttons: "Post to public wall", "Close this post", "Go to public wall".
    - Post: `POST /api/wall/post` runs the public moderation layers. If `WALL_REQUIRES_APPROVAL=true` (default), the card gets a "RECEIVED" postmark and the line "Forwarded to the Editor" and waits for my approval in `/admin`. If false, a passing post gets a "POSTED" postmark and goes live. Refused or error: "This one's staying private." Never allow a double post.
-   - Close: the card leaves, the postman rides back in from the right (mirrored, so his sprite must contain no text), the scene resets and all state clears.
+   - Close: the card leaves, the scene resets and all state clears.
 6. Kiosk behaviour: after 60s of inactivity in WRITING or REPLY, reset to IDLE.
 
 Postcard geometry (approximate % of the cropped card: measure the real file and keep it in ONE `postcardLayout` constant): writing area x 3-46%, y 10-90%. Address lines at y 42%, 52%, 62%, x 53-96%. PIN boxes y 76-83%, x 60-96%. The top-right corner stamp stays untouched. Position overlays in percentages so they scale with the stage.
@@ -84,7 +84,7 @@ A small local model is a weak judge, so use layers; the blocklist is the backsto
 1. Setup: scaffold, deps, git, crop the assets, DB schema and seeds, `PROGRESS.md`. Tell me the Ollama install and model-pull commands.
 2. Backend: `GET /api/identity`, `POST /api/reply`, `POST /api/wall/post`, `GET /api/wall`, `lib/llm.ts`, prompts, blocklist, moderation, fallbacks, `scripts/bakeoff.ts`. Test with curl and the moderation script. I pick the model here.
 3. Flow with placeholder art: full state machine, real postcard and post box PNGs, typing, reply, 3 buttons, idle reset.
-4. Scene and postman: SVG street scene, postman sprite with separable wheels, idle / exit / return animations.
+4. Scene: background image + post box tap area (done; replaced the SVG scene/postman).
 5. Wall and `/admin`: drifting grid, seeds, polling, card modal, approve/reject queue.
 6. Memes: `refresh-memes` command, import script, `/admin` meme approval, wired into the meme voice.
 7. Harden: bad-input pass on moderation, Ollama-off test (fallbacks), internet-off test, production build, README with run steps.

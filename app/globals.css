@@ -22,27 +22,3 @@ body {
   font-family: var(--font-hind), sans-serif;
 }
 
-/* Postman sprite loops (SVG; transform origins are in sprite viewBox px) */
-.pm-spin { transform-box: fill-box; transform-origin: center; animation: pm-spin 0.45s linear infinite; }
-.pm-bob { animation: pm-bob 0.3s ease-in-out infinite; }
-.pm-leg-a, .pm-leg-b { transform-box: view-box; transform-origin: 228px 318px; animation: pm-pedal 0.45s ease-in-out infinite; }
-.pm-leg-b { animation-delay: -0.225s; }
-.pm-bell-idle { transform-box: fill-box; transform-origin: 50% 100%; animation: pm-bell-idle 4s ease-in-out infinite; }
-.pm-ring-idle { animation: pm-ring-idle 4s linear infinite; }
-.pm-bell-once { transform-box: fill-box; transform-origin: 50% 100%; animation: pm-bell-once 0.35s ease-in-out 1; }
-.pm-ring-once { animation: pm-ring-once 0.35s linear 1 forwards; }
-.pm-tap { transform-box: view-box; transform-origin: 290px 596px; animation: pm-tap 1.3s ease-in-out infinite; }
-@keyframes pm-spin { to { transform: rotate(360deg); } }
-@keyframes pm-bob { 50% { transform: translateY(-5px); } }
-@keyframes pm-pedal { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(11deg); } }
-@keyframes pm-bell-idle { 0%, 86%, 100% { transform: rotate(0); } 89% { transform: rotate(-25deg); } 92% { transform: rotate(25deg); } 95% { transform: rotate(-15deg); } 98% { transform: rotate(10deg); } }
-@keyframes pm-ring-idle { 0%, 86%, 100% { opacity: 0; } 88%, 98% { opacity: 1; } }
-@keyframes pm-bell-once { 20% { transform: rotate(-25deg); } 45% { transform: rotate(25deg); } 70% { transform: rotate(-15deg); } 100% { transform: rotate(0); } }
-@keyframes pm-ring-once { 0% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes pm-tap { 0%, 60%, 100% { transform: rotate(0); } 75% { transform: rotate(-14deg); } }
-
-/* Scene bunting sway */
-.bunting { transform-box: fill-box; transform-origin: 50% 0; animation: sway 3.2s ease-in-out infinite; }
-@keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-
-@media (prefers-reduced-motion: reduce) { .bunting { animation: none; } }

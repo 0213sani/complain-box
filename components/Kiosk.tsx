@@ -5,13 +5,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { initialState, reducer } from "@/lib/kiosk/machine";
 import { fetchIdentity, postToWall, sendComplaint } from "@/lib/kiosk/api";
 import { useIdleReset } from "@/lib/kiosk/useIdleReset";
-import { CARD, cardCenter, slotCenter } from "@/lib/kiosk/stage";
+import { BG, bgLeft, CARD, cardCenter, slotCenter } from "@/lib/kiosk/stage";
 import Stage from "./Stage";
-import StreetScene from "./scene/StreetScene";
 import PostBox from "./PostBox";
-import Sign from "./Sign";
-import Postman, { type PostmanMode } from "./postman/Postman";
-import DistantBell from "./DistantBell";
 import WritingCard from "./WritingCard";
 import ReplyCard from "./ReplyCard";
 
@@ -21,7 +17,7 @@ const cardVariants = {
   shown: { y: 0, x: 0, scale: 1, opacity: 1, transition: { duration: 0.5, ease: "easeOut" as const } },
   // exit depends on why the card leaves: posted into the slot, closed down, or done (slides left)
   exit: (how: string) =>
-    how === "slot" ? { ...toSlot, scale: 0.12, opacity: [1, 1, 0], transition: { duration: 0.5, ease: "easeIn" as const } }
+    how === "slot" ? { ...toSlot, scale: 0.05, opacity: [1, 1, 0], transition: { duration: 0.5, ease: "easeIn" as const } }
     : how === "left" ? { x: -1600, transition: { duration: 0.5, ease: "easeIn" as const } }
     : { y: 1000, transition: { duration: 0.4, ease: "easeIn" as const } },
 };
@@ -53,30 +49,34 @@ export default function Kiosk() {
     dispatch({ type: "WALL", wall: await postToWall(s.reply.complaintId) });
   };
 
+  // no ride any more: SENDING ends once the card has gone into the slot
+  useEffect(() => {
+    if (s.phase !== "SENDING") return;
+    const t = setTimeout(() => dispatch({ type: "RIDE_DONE" }), 600);
+    return () => clearTimeout(t);
+  }, [s.phase]);
+
   useIdleReset(s.phase === "WRITING", () => dispatch({ type: "CLOSE" }));
   useIdleReset(s.phase === "REPLY", finish);
-
-  const postman: PostmanMode =
-    s.phase === "SENDING" ? "leave"
-    : s.phase === "WAITING" || s.phase === "REPLY" ? "gone"
-    : s.returning ? "return" : "idle";
 
   const exitHow = s.phase === "SENDING" ? "slot" : s.phase === "IDLE" && s.returning ? "left" : "down";
   const cardOpen = s.phase === "WRITING" || s.phase === "REPLY";
 
   return (
     <Stage>
-      <StreetScene />
-      <Sign />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/assets/street_tq.webp" alt="" draggable={false} className="absolute max-w-none select-none"
+        style={{ left: bgLeft, top: 0, width: BG.w, height: BG.h }} />
       <PostBox enabled={s.phase === "IDLE" && !!s.identity} onOpen={() => dispatch({ type: "OPEN" })} />
-      <Postman
-        mode={postman}
-        onDone={(m) => {
-          if (m === "leave") dispatch({ type: "RIDE_DONE" });
-          if (m === "return") dispatch({ type: "RETURNED" });
-        }}
-      />
-      {s.phase === "WAITING" && <DistantBell />}
+      {s.phase === "WAITING" && (
+        <motion.p
+          className="absolute left-1/2 top-[40px] -translate-x-1/2 rounded-full border-4 border-ink bg-cream px-6 py-2 font-ui text-2xl text-ink"
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ repeat: Infinity, duration: 2.2 }}
+        >
+          Your shikayat is on its way… reply aa raha hai
+        </motion.p>
+      )}
 
       <AnimatePresence>
         {cardOpen && (

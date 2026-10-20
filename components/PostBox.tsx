@@ -1,27 +1,19 @@
 "use client";
-import { motion, useAnimate } from "motion/react";
-import { POSTBOX, postboxTop, postboxWidth } from "@/lib/kiosk/stage";
+import { motion } from "motion/react";
+import { POSTBOX } from "@/lib/kiosk/stage";
 
-// The real post box PNG. Tapping it wobbles, then calls onOpen.
+// Invisible tap area over the post box painted in the background; glows so people know to tap it.
 export default function PostBox({ onOpen, enabled }: { onOpen: () => void; enabled: boolean }) {
-  const [scope, animate] = useAnimate();
-  const tap = async () => {
-    if (!enabled) return;
-    await animate(scope.current, { rotate: [0, -4, 4, -2, 0] }, { duration: 0.35 });
-    onOpen();
-  };
   return (
     <motion.button
-      ref={scope}
       type="button"
       aria-label="Open the post box"
-      onClick={tap}
-      className="absolute origin-bottom"
-      style={{ left: POSTBOX.left, top: postboxTop, width: postboxWidth, height: POSTBOX.height, cursor: enabled ? "pointer" : "default" }}
-      whileHover={enabled ? { scale: 1.02 } : undefined}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/assets/postbox_tq.png" alt="" draggable={false} className="h-full w-full select-none" />
-    </motion.button>
+      onClick={() => enabled && onOpen()}
+      className="absolute rounded-t-[45%] rounded-b-lg"
+      style={{ left: POSTBOX.left, top: POSTBOX.top, width: POSTBOX.w, height: POSTBOX.h, cursor: enabled ? "pointer" : "default" }}
+      animate={enabled ? { boxShadow: ["0 0 0px 0px rgba(240,200,120,0)", "0 0 46px 12px rgba(240,200,120,0.55)", "0 0 0px 0px rgba(240,200,120,0)"] } : { boxShadow: "0 0 0px 0px rgba(240,200,120,0)" }}
+      transition={enabled ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
+      whileTap={{ scale: 0.97 }}
+    />
   );
 }
