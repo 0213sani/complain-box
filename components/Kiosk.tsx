@@ -8,6 +8,7 @@ import { useIdleReset } from "@/lib/kiosk/useIdleReset";
 import { BG, bgLeft, CARD, cardCenter, slotCenter } from "@/lib/kiosk/stage";
 import Stage from "./Stage";
 import PostBox from "./PostBox";
+import IdleHeader from "./IdleHeader";
 import WritingCard from "./WritingCard";
 import ReplyCard from "./ReplyCard";
 
@@ -67,6 +68,7 @@ export default function Kiosk() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/assets/street_tq.webp" alt="" draggable={false} className="absolute max-w-none select-none"
         style={{ left: bgLeft, top: 0, width: BG.w, height: BG.h }} />
+      {s.phase === "IDLE" && <IdleHeader />}
       <PostBox enabled={s.phase === "IDLE" && !!s.identity} onOpen={() => dispatch({ type: "OPEN" })} />
       {s.phase === "WAITING" && (
         <motion.p
