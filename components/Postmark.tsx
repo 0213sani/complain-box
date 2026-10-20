@@ -25,7 +25,7 @@ export default function Postmark({ label, size = 190, rotate = -12, delay = 0, o
       </defs>
       <circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" strokeWidth="5" />
       <circle cx="100" cy="100" r="58" fill="none" stroke="currentColor" strokeWidth="3" />
-      <g fill="currentColor" fontFamily="var(--font-hind)" fontWeight="600">
+      <g fill="currentColor" fontWeight="600" style={{ fontFamily: "var(--font-hind)" }}>
         <text fontSize="17" letterSpacing="3">
           <textPath href={`#${id}t`} startOffset="50%" textAnchor="middle">TAQNEEQ POST</textPath>
         </text>
